@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Usuário</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Cadastro</h1>
+  <form id="registerForm">
+    <input type="text" id="newUser" placeholder="Usuário" required>
+    <input type="password" id="newPass" placeholder="Senha" required>
+    <button type="submit">Cadastrar</button>
+  </form>
+  <p><a href="index.html">Voltar para Login</a></p>
+
+  <script src="db.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const user = document.getElementById('newUser').value;
+      const pass = document.getElementById('newPass').value;
+      await register(user, pass);
+      alert('Usuário cadastrado!');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>

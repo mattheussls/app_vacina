@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Vacinas App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-primary">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">Olá, <span id="nomeProfissional"></span></span>
+    <button id="logoutBtn" class="btn btn-outline-light btn-sm">Sair</button>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <div id="listaRegistros" class="row g-3">
+    <!-- Aqui aparecerão os cards de cidadãos -->
+  </div>
+</div>
+
+<div class="position-fixed bottom-0 end-0 m-4">
+  <button id="addRegistroBtn" class="btn btn-primary rounded-circle" style="width: 60px; height: 60px; font-size: 30px;">+</button>
+</div>
+
+<!-- Modal Cadastro -->
+<div class="modal fade" id="cadastroModal" tabindex="-1" aria-labelledby="cadastroModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cadastroModalLabel">Cadastrar Cidadão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="cadastroForm">
+          <div class="mb-3">
+            <label>Nome do Cidadão</label>
+            <input type="text" class="form-control" id="nomeCidadao" required>
+          </div>
+          <div class="mb-3">
+            <label>CPF</label>
+            <input type="text" class="form-control" id="cpfCidadao" required maxlength="14">
+          </div>
+          <div class="mb-3">
+            <label>CNS</label>
+            <input type="text" class="form-control" id="cnsCidadao" required>
+          </div>
+          <div class="mb-3">
+            <label>Data de Nascimento</label>
+            <input type="date" class="form-control" id="dataNascimento" required>
+          </div>
+          <div class="mb-3">
+            <label>Vacinas Disponíveis</label>
+            <ul id="vacinasChecklist" class="list-unstyled"></ul>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">Salvar Registro</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="vacinas_regras.js"></script>
+<script src="db.js"></script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>
