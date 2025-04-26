@@ -10,6 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   carregarRegistros();
 
+  // Máscara de CPF
+  const cpfInput = document.getElementById('cpfCidadao');
+  IMask(cpfInput, {
+    mask: '000.000.000-00'
+  });
+
   document.getElementById('addRegistroBtn').addEventListener('click', () => {
     document.getElementById('cadastroForm').reset();
     document.getElementById('vacinasChecklist').innerHTML = '';
@@ -18,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    const cpfCidadao = document.getElementById('cpfCidadao').value;
+    if (!validarCPF(cpfCidadao)) {
+      alert('CPF inválido!');
+      return;
+    }
+
     const nascimento = document.getElementById('dataNascimento').value;
     const idade = calcularIdadeAnos(nascimento);
     const idadeMeses = calcularIdadeMeses(nascimento);
@@ -29,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cpf_profissional: localStorage.getItem('cpf_profissional'),
       data_aplicacao: new Date().toLocaleDateString('pt-BR'),
       nome_cidadao: document.getElementById('nomeCidadao').value,
-      cpf_cidadao: document.getElementById('cpfCidadao').value,
+      cpf_cidadao: cpfCidadao,
       cns_cidadao: document.getElementById('cnsCidadao').value,
       data_nascimento: nascimento,
       idade_cidadao: idade,
@@ -38,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     try {
-      const registroComId = await saveRegistro(registro); // salva e recebe com ID
-      todosRegistros.push(registroComId); // adiciona no array
+      const registroComId = await saveRegistro(registro);
+      todosRegistros.push(registroComId);
       modalCadastro.hide();
       alert('Registro salvo com sucesso!');
       await carregarRegistros();
@@ -68,26 +80,26 @@ async function carregarRegistros() {
   const registros = await getAllRegistros();
   todosRegistros = registros;
 
-  if (registros.length > 0) {
-    document.body.style.background = "#f8f9fa";
-  } else {
-    document.body.style.background = "url('img/fundo.png') no-repeat center center fixed";
-    document.body.style.backgroundSize = "contain";
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundRepeat = "no-repeat";
-  }
-
   registros.forEach((registro) => {
+    const totalVacinasDisponiveis = Object.keys(registro.vacinas || {}).length;
+    const vacinasTomadas = Object.values(registro.vacinas || {}).filter(v => v === 1).length;
+    const porcentagem = totalVacinasDisponiveis > 0 ? Math.round((vacinasTomadas / totalVacinasDisponiveis) * 100) : 0;
+    const classeCirculo = porcentagem === 100 ? 'verde' : 'amarelo';
+    const coberturaTexto = porcentagem === 100 ? 'TOTAL' : 'PARCIAL';
+    const badgeCor = porcentagem === 100 ? 'success' : 'warning text-dark';
+
     const card = `
       <div class="col-md-6 col-lg-4">
         <div class="card text-dark h-100 shadow-sm" style="cursor:pointer" onclick="window.location.href='detalhar_cidadao.html?id=${registro.id}'">
-          <div class="card-body">
-            <h5 class="card-title">${registro.nome_cidadao}</h5>
-            <p class="card-text">
-              CPF: ${registro.cpf_cidadao}<br>
-              Idade: ${registro.idade_cidadao} anos<br>
-              Data: ${registro.data_aplicacao}
-            </p>
+          <div class="card-body d-flex flex-column justify-content-between">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title mb-0">${registro.nome_cidadao}</h5>
+              <div class="mini-circulo ${classeCirculo}">${porcentagem}%</div>
+            </div>
+            <p class="card-text mb-1">CPF: ${registro.cpf_cidadao}</p>
+            <p class="card-text mb-1">Idade: ${registro.idade_cidadao} anos</p>
+            <p class="card-text mb-2">Data: ${registro.data_aplicacao}</p>
+            <span class="badge bg-${badgeCor}">Cobertura: ${coberturaTexto}</span>
           </div>
         </div>
       </div>
@@ -139,4 +151,19 @@ function coletarVacinas() {
     vacinas[vacina] = input && input.checked ? 1 : 0;
   });
   return vacinas;
+}
+
+function validarCPF(cpf) {
+  cpf = cpf.replace(/[^\d]+/g, '');
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf.charAt(9))) return false;
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  return resto === parseInt(cpf.charAt(10));
 }

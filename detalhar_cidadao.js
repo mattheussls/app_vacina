@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   idCidadao = parseInt(params.get('id'));
 
   const registros = await getAllRegistros();
-  registroCidadao = registros.find(reg => reg.id === idCidadao); // 🔥 buscar pelo ID real
+  registroCidadao = registros.find(reg => reg.id === idCidadao);
 
   if (!registroCidadao) {
     alert('Registro não encontrado!');
@@ -100,63 +100,46 @@ function preencherDados() {
           Data da Aplicação: ${registroCidadao.data_aplicacao}
         </p>
 
-        <h6 class="mt-4">✅ Vacinas Aplicadas:</h6>
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead class="table-light">
-              <tr>
-                <th>Vacina</th>
-                <th>Dose</th>
-                <th>Faixa Etária</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${vacinasAplicadas || '<tr><td colspan="3">Nenhuma vacina aplicada</td></tr>'}
-            </tbody>
-          </table>
-        </div>
+        <h4 class="section-title">Vacinas Aplicadas</h4>
+        ${gerarTabelaVacinas(vacinasAplicadas, "Nenhuma vacina aplicada")}
 
-        <h6 class="mt-4">❌ Vacinas não Aplicadas:</h6>
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead class="table-light">
-              <tr>
-                <th>Vacina</th>
-                <th>Dose</th>
-                <th>Faixa Etária</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${vacinasFaltantes || '<tr><td colspan="3">Nenhuma vacina faltante</td></tr>'}
-            </tbody>
-          </table>
-        </div>
+        <h4 class="section-title">Vacinas Não Aplicadas</h4>
+        ${gerarTabelaVacinas(vacinasFaltantes, "Nenhuma vacina faltante")}
 
-        <h6 class="mt-4">⏳ Próximas Vacinas:</h6>
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead class="table-light">
-              <tr>
-                <th>Vacina</th>
-                <th>Dose</th>
-                <th>Faixa Etária</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${vacinasProximas || '<tr><td colspan="3">Nenhuma vacina futura</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-
+        <h4 class="section-title">Próximas Vacinas</h4>
+        ${gerarTabelaVacinas(vacinasProximas, "Nenhuma vacina futura")}
       </div>
+    </div>
+  `;
+}
+
+function gerarTabelaVacinas(conteudo, mensagemVazia) {
+  return `
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-light">
+          <tr>
+            <th>Vacina</th>
+            <th>Dose</th>
+            <th>Faixa Etária</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${conteudo || `<tr><td colspan="3">${mensagemVazia}</td></tr>`}
+        </tbody>
+      </table>
     </div>
   `;
 }
 
 function preencherFormularioEdicao() {
   document.getElementById('editNomeCidadao').value = registroCidadao.nome_cidadao;
+  document.getElementById('editCpfCidadao').value = registroCidadao.cpf_cidadao;
   document.getElementById('editCnsCidadao').value = registroCidadao.cns_cidadao;
   document.getElementById('editDataNascimento').value = registroCidadao.data_nascimento;
+
+  const cpfInput = document.getElementById('editCpfCidadao');
+  IMask(cpfInput, { mask: '000.000.000-00' });
 
   const idadeMeses = calcularIdadeMeses(registroCidadao.data_nascimento);
   const checklist = document.getElementById('editarVacinasChecklist');
@@ -180,6 +163,7 @@ function preencherFormularioEdicao() {
 
 async function salvarAlteracoes() {
   registroCidadao.nome_cidadao = document.getElementById('editNomeCidadao').value;
+  registroCidadao.cpf_cidadao = document.getElementById('editCpfCidadao').value;
   registroCidadao.cns_cidadao = document.getElementById('editCnsCidadao').value;
   registroCidadao.data_nascimento = document.getElementById('editDataNascimento').value;
   registroCidadao.idade_cidadao = calcularIdadeAnos(registroCidadao.data_nascimento);
